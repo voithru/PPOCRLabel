@@ -1943,17 +1943,47 @@ class MainWindow(QMainWindow, WindowMixin):
                         labeldict[file] = []
         return labeldict
 
-
-    def savePPlabel(self,mode='Manual'):
+    def savePPlabel(self, mode="Manual"):
         savedfile = [self.getImglabelidx(i) for i in self.fileStatedict.keys()]
-        with open(self.PPlabelpath, 'w', encoding='utf-8') as f:
-            for key in self.PPlabel:
-                if key in savedfile and self.PPlabel[key] != []:
-                    f.write(key + '\t')
-                    f.write(json.dumps(self.PPlabel[key], ensure_ascii=False) + '\n')
+        data_list = []
+        for key in self.PPlabel:
+            if key in savedfile and self.PPlabel[key] != []:
+                image_transcript_list = []
+                for transcript in self.PPlabel[key]:
+                    image_transcript = ImageTranscript(
+                        text=transcript["transcription"],
+                        bounding_polygon=BoundingPolygon(
+                            [
+                                Vertex(point[0], point[1])
+                                for point in transcript["points"]
+                            ]
+                        ),
+                        confidence=None,
+                        language=None,
+                    )
+                    image_transcript_list.append(image_transcript)
+                image_transcripts = ImageTranscripts(image_transcript_list)
+                image_transcripts.save(
+                    Path(self.PPlabelpath).parent / Path(key).with_suffix(".json").name
+                )
+                data_list.append(
+                    OCRDataPair(
+                        image_path=Path(key).name,
+                        image_transcripts_path=Path(key).with_suffix(".json").name,
+                    )
+                )
+        OCRDataList(data_list).save(
+            Path(self.PPlabelpath).parent.joinpath("data-list.json")
+        )
+        # with open(
+        #     os.path.dirname(self.PPlabelpath) + key.split("/")[1] + ".json",
+        #     "w",
+        #     encoding="utf-8",
+        # ) as f:
+        #     f.write(json.dumps(self.PPlabel[key], ensure_ascii=False) + "\n")
 
-        if mode=='Manual':
-            msg = 'Images that have been checked are saved in '+ self.PPlabelpath
+        if mode == "Manual":
+            msg = "Images that have been checked are saved in " + self.PPlabelpath
             QMessageBox.information(self, "Information", msg)
 
     def saveCacheLabel(self):
