@@ -66,6 +66,7 @@ from libs.toolBar import ToolBar
 from libs.ustr import ustr
 from libs.hashableQListWidgetItem import HashableQListWidgetItem
 from libs.editinlist import EditInList
+from data_model.image_transcripts import (
 
 __appname__ = 'PPOCRLabel'
 
