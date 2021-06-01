@@ -1946,6 +1946,12 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def savePPlabel(self, mode="Manual"):
         savedfile = [self.getImglabelidx(i) for i in self.fileStatedict.keys()]
+        with open(self.PPlabelpath, "w", encoding="utf-8") as f:
+            for key in self.PPlabel:
+                if key in savedfile and self.PPlabel[key] != []:
+                    f.write(key + "\t")
+                    f.write(json.dumps(self.PPlabel[key], ensure_ascii=False) + "\n")
+
         data_list = []
         for key in self.PPlabel:
             if key in savedfile and self.PPlabel[key] != []:
@@ -1971,19 +1977,18 @@ class MainWindow(QMainWindow, WindowMixin):
                     OCRDataPair(
                         image_path=Path("data").joinpath(Path(key).name),
                         image_transcripts_path=Path("data").joinpath(
+                            Path(key).with_suffix(".json").name
+                        ),
                     )
                 )
         OCRDataList(data_list).save(
             Path(self.PPlabelpath).parent.parent.joinpath("data-list.json")
         )
-        #     os.path.dirname(self.PPlabelpath) + key.split("/")[1] + ".json",
-        #     "w",
-        #     encoding="utf-8",
-        # ) as f:
-        #     f.write(json.dumps(self.PPlabel[key], ensure_ascii=False) + "\n")
 
         if mode == "Manual":
-            msg = "Images that have been checked are saved in " + self.PPlabelpath
+            msg = "Images that have been checked are saved in " + str(
+                Path(self.PPlabelpath).parent
+            )
             QMessageBox.information(self, "Information", msg)
 
     def saveCacheLabel(self):
