@@ -1969,14 +1969,13 @@ class MainWindow(QMainWindow, WindowMixin):
                 )
                 data_list.append(
                     OCRDataPair(
-                        image_path=Path(key).name,
-                        image_transcripts_path=Path(key).with_suffix(".json").name,
+                        image_path=Path("data").joinpath(Path(key).name),
+                        image_transcripts_path=Path("data").joinpath(
                     )
                 )
         OCRDataList(data_list).save(
-            Path(self.PPlabelpath).parent.joinpath("data-list.json")
+            Path(self.PPlabelpath).parent.parent.joinpath("data-list.json")
         )
-        # with open(
         #     os.path.dirname(self.PPlabelpath) + key.split("/")[1] + ".json",
         #     "w",
         #     encoding="utf-8",
