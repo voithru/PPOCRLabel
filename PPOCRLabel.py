@@ -364,7 +364,7 @@ class MainWindow(QMainWindow, WindowMixin):
         save = action(
             getStr("save"),
             self.saveFile,
-            "Ctrl+v",
+            "Ctrl+B",
             "verify",
             getStr("saveDetail"),
             enabled=False,
