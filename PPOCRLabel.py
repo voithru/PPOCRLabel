@@ -93,7 +93,14 @@ class WindowMixin(object):
 class MainWindow(QMainWindow, WindowMixin):
     FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = list(range(3))
 
-    def __init__(self, lang="ch", defaultFilename=None, defaultPrefdefClassFile=None, defaultSaveDir=None):
+    def __init__(
+        self,
+        lang="en",
+        model_lang="korean",
+        defaultFilename=None,
+        defaultPrefdefClassFile=None,
+        defaultSaveDir=None,
+    ):
         super(MainWindow, self).__init__()
         self.setWindowTitle(__appname__)
 
@@ -102,6 +109,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.settings.load()  
         settings = self.settings
         self.lang = lang
+        self.model_lang = model_lang
         # Load string bundle for i18n
         if lang not in ['ch', 'en']:
             lang = 'en'
@@ -109,7 +117,14 @@ class MainWindow(QMainWindow, WindowMixin):
         getStr = lambda strId: self.stringBundle.getString(strId)
 
         self.defaultSaveDir = defaultSaveDir
-        self.ocr = PaddleOCR(use_pdserving=False, use_angle_cls=True, det=True, cls=True, use_gpu=False, lang=lang)
+        self.ocr = PaddleOCR(
+            use_pdserving=False,
+            use_angle_cls=True,
+            det=True,
+            cls=True,
+            use_gpu=False,
+            lang=model_lang,
+        )
 
         if os.path.exists('./data/paddle.png'):
             result = self.ocr.ocr('./data/paddle.png', cls=True, det=True)
@@ -2097,13 +2112,21 @@ def get_main_app(argv=[]):
     # Tzutalin 201705+: Accept extra agruments to change predefined class file
     argparser = argparse.ArgumentParser()
     argparser.add_argument("--lang", default="en", nargs="?")
-    argparser.add_argument("--predefined_classes_file",
-                           default=os.path.join(os.path.dirname(__file__), "data", "predefined_classes.txt"),
-                           nargs="?")
+    argparser.add_argument("--model_lang", default="en", nargs="?")
+    argparser.add_argument(
+        "--predefined_classes_file",
+        default=os.path.join(
+            os.path.dirname(__file__), "data", "predefined_classes.txt"
+        ),
+        nargs="?",
+    )
     args = argparser.parse_args(argv[1:])
     # Usage : labelImg.py image predefClassFile saveDir
-    win = MainWindow(lang=args.lang,
-                     defaultPrefdefClassFile=args.predefined_classes_file)
+    win = MainWindow(
+        lang=args.lang,
+        model_lang=args.model_lang,
+        defaultPrefdefClassFile=args.predefined_classes_file,
+    )
     win.show()
     return app, win
 
